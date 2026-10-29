@@ -1,0 +1,57 @@
+# Dokploy override, layered on top of the upstream compose files (see dokploy/README.md).
+# override instead of editing upstream files, so `git merge upstream/main` stays conflict-free.
+# - Only frontend-proxy is reachable (via Traefik); every other published host port is removed.
+# - container_name is reset so Dokploy can track containers by project (logs/metrics tabs).
+# - pull_policy: always + `up --no-build` uses the published ghcr.io images instead of building ~20 services.
+
+x-internal: &internal
+  container_name: !reset null
+  ports: !reset []
+  pull_policy: always
+
+services:
+  frontend-proxy:
+    <<: *internal
+    networks: [default, dokploy-network]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dokploy-network
+      - traefik.http.routers.otel-demo.rule=Host(`${DEMO_DOMAIN:?set DEMO_DOMAIN in Dokploy Environment}`)
+      - traefik.http.routers.otel-demo.entrypoints=websecure
+      - traefik.http.routers.otel-demo.tls.certResolver=letsencrypt
+      - traefik.http.services.otel-demo.loadbalancer.server.port=${ENVOY_PORT}
+
+  # compose.yaml
+  ad: *internal
+  cart: *internal
+  checkout: *internal
+  currency: *internal
+  email: *internal
+  frontend: *internal
+  image-provider: *internal
+  load-generator: *internal
+  payment: *internal
+  product-catalog: *internal
+  quote: *internal
+  recommendation: *internal
+  shipping: *internal
+  flagd: *internal
+  flagd-ui: *internal
+  telemetry-docs: *internal
+  astronomy-db: *internal
+  valkey-cart: *internal
+  otel-collector: *internal
+  # compose.full.yaml
+  accounting: *internal
+  fraud-detection: *internal
+  kafka: *internal
+  # compose.observability.yaml
+  jaeger: *internal
+  grafana: *internal
+  prometheus: *internal
+  opensearch: *internal
+  opamp-server: *internal
+
+networks:
+  dokploy-network:
+    external: true
