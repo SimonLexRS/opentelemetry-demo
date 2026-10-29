@@ -1,0 +1,34 @@
+# Exports the demo's application telemetry to Zabbix 8.0 APM (loaded only by compose.local.yaml).
+# Zabbix side: otelcol-contrib on the Zabbix host receives OTLP/gRPC and writes to the ClickHouse
+# tables (zabbix.otel_*) read by the Zabbix APM menu.
+# separate pipelines with receivers [otlp] only, so the upstream exporter arrays stay untouched
+# and infra metrics (docker_stats, host_metrics, ...) don't load the small Zabbix host.
+
+processors:
+  # frontend-web, image-provider and telemetry-docs don't set it; Zabbix APM filters by namespace.
+  resource/zabbix:
+    attributes:
+      - key: service.namespace
+        value: opentelemetry-demo
+        action: insert
+
+exporters:
+  otlp_grpc/zabbix:
+    endpoint: ${env:ZABBIX_APM_ENDPOINT}
+    tls:
+      insecure: true  # transport is the Tailscale (WireGuard) tunnel
+
+service:
+  pipelines:
+    traces/zabbix:
+      receivers: [otlp]
+      processors: [resource_detection, memory_limiter, resource/zabbix, transform/sanitize_spans, gen_ai_normalizer, transform/redact_sensitive_data, redaction]
+      exporters: [otlp_grpc/zabbix]
+    metrics/zabbix:
+      receivers: [otlp]
+      processors: [resource_detection, memory_limiter, resource/zabbix]
+      exporters: [otlp_grpc/zabbix]
+    logs/zabbix:
+      receivers: [otlp]
+      processors: [resource_detection, memory_limiter, resource/zabbix, transform/sanitize_logs]
+      exporters: [otlp_grpc/zabbix]
