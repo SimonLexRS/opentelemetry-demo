@@ -58,3 +58,6 @@ src/frontend/cypress/screenshots
 src/shipping/target/
 
 !src/currency/build
+
+# Local settings that must not be committed (e.g. ZABBIX_APM_ENDPOINT for compose.local.yaml)
+.env.local

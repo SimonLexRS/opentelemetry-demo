@@ -3,10 +3,11 @@
 
 # Local Docker Desktop deploy: frontend on host port DEMO_HOST_PORT (8080 is taken on this host)
 # and application telemetry also exported to Zabbix 8.0 APM.
-# Set ZABBIX_APM_ENDPOINT (host:port of the Zabbix APM OTLP/gRPC collector) in .env.override. Guide for any application:
+# Set ZABBIX_APM_ENDPOINT (host:port of the Zabbix APM OTLP/gRPC collector) in .env.local, which git ignores so the
+# address of your network is never committed. Guide for any application:
 # https://github.com/SimonLexRS/zabbix-apm-dashboard/blob/main/docs/add-application.md
 #
-#   F="-f compose.yaml -f compose.full.yaml -f compose.observability.yaml -f compose.local.yaml --env-file .env --env-file .env.override"
+#   F="-f compose.yaml -f compose.full.yaml -f compose.observability.yaml -f compose.local.yaml --env-file .env --env-file .env.override --env-file .env.local"
 #   docker compose $F pull && docker compose $F up -d --no-build
 
 services:
@@ -30,4 +31,4 @@ services:
     volumes:
       - ./src/otel-collector/otelcol-config-zabbix.yml:/etc/otelcol-config-zabbix.yml
     environment:
-      - ZABBIX_APM_ENDPOINT=${ZABBIX_APM_ENDPOINT:?set ZABBIX_APM_ENDPOINT in .env.override}
+      - ZABBIX_APM_ENDPOINT=${ZABBIX_APM_ENDPOINT:?set ZABBIX_APM_ENDPOINT in .env.local}
