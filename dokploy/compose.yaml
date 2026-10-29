@@ -1,17 +1,18 @@
 # Dokploy override, layered on top of the upstream compose files (see dokploy/README.md).
 # override instead of editing upstream files, so `git merge upstream/main` stays conflict-free.
 # - Only frontend-proxy is reachable (via Traefik); every other published host port is removed.
-# - container_name is reset so Dokploy can track containers by project (logs/metrics tabs).
+# - container_name gets an otel- prefix to avoid clashes with other stacks on the host
+#   (`!reset null` becomes the literal "null" on older Compose versions).
 # - pull_policy: always + `up --no-build` uses the published ghcr.io images instead of building ~20 services.
 
 x-internal: &internal
-  container_name: !reset null
   ports: !reset []
   pull_policy: always
 
 services:
   frontend-proxy:
     <<: *internal
+    container_name: otel-frontend-proxy
     networks: [default, dokploy-network]
     labels:
       - traefik.enable=true
@@ -22,35 +23,35 @@ services:
       - traefik.http.services.otel-demo.loadbalancer.server.port=${ENVOY_PORT}
 
   # compose.yaml
-  ad: *internal
-  cart: *internal
-  checkout: *internal
-  currency: *internal
-  email: *internal
-  frontend: *internal
-  image-provider: *internal
-  load-generator: *internal
-  payment: *internal
-  product-catalog: *internal
-  quote: *internal
-  recommendation: *internal
-  shipping: *internal
-  flagd: *internal
-  flagd-ui: *internal
-  telemetry-docs: *internal
-  astronomy-db: *internal
-  valkey-cart: *internal
-  otel-collector: *internal
+  ad: {<<: *internal, container_name: otel-ad}
+  cart: {<<: *internal, container_name: otel-cart}
+  checkout: {<<: *internal, container_name: otel-checkout}
+  currency: {<<: *internal, container_name: otel-currency}
+  email: {<<: *internal, container_name: otel-email}
+  frontend: {<<: *internal, container_name: otel-frontend}
+  image-provider: {<<: *internal, container_name: otel-image-provider}
+  load-generator: {<<: *internal, container_name: otel-load-generator}
+  payment: {<<: *internal, container_name: otel-payment}
+  product-catalog: {<<: *internal, container_name: otel-product-catalog}
+  quote: {<<: *internal, container_name: otel-quote}
+  recommendation: {<<: *internal, container_name: otel-recommendation}
+  shipping: {<<: *internal, container_name: otel-shipping}
+  flagd: {<<: *internal, container_name: otel-flagd}
+  flagd-ui: {<<: *internal, container_name: otel-flagd-ui}
+  telemetry-docs: {<<: *internal, container_name: otel-telemetry-docs}
+  astronomy-db: {<<: *internal, container_name: otel-astronomy-db}
+  valkey-cart: {<<: *internal, container_name: otel-valkey-cart}
+  otel-collector: {<<: *internal, container_name: otel-otel-collector}
   # compose.full.yaml
-  accounting: *internal
-  fraud-detection: *internal
-  kafka: *internal
+  accounting: {<<: *internal, container_name: otel-accounting}
+  fraud-detection: {<<: *internal, container_name: otel-fraud-detection}
+  kafka: {<<: *internal, container_name: otel-kafka}
   # compose.observability.yaml
-  jaeger: *internal
-  grafana: *internal
-  prometheus: *internal
-  opensearch: *internal
-  opamp-server: *internal
+  jaeger: {<<: *internal, container_name: otel-jaeger}
+  grafana: {<<: *internal, container_name: otel-grafana}
+  prometheus: {<<: *internal, container_name: otel-prometheus}
+  opensearch: {<<: *internal, container_name: otel-opensearch}
+  opamp-server: {<<: *internal, container_name: otel-opamp-server}
 
 networks:
   dokploy-network:
