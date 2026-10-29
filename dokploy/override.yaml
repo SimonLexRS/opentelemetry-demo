@@ -14,6 +14,19 @@ services:
     <<: *internal
     container_name: otel-frontend-proxy
     networks: [default, dokploy-network]
+    # dokploy-network is shared by every stack on the host: short names like `frontend` can resolve
+    # to another project's container there, so Envoy targets the unique otel-* container names.
+    environment:
+      - FRONTEND_HOST=otel-frontend
+      - LOCUST_WEB_HOST=otel-load-generator
+      - GRAFANA_HOST=otel-grafana
+      - JAEGER_HOST=otel-jaeger
+      - OPAMP_SERVER_HOST=otel-opamp-server
+      - OTEL_COLLECTOR_HOST=otel-otel-collector
+      - IMAGE_PROVIDER_HOST=otel-image-provider
+      - FLAGD_HOST=otel-flagd
+      - FLAGD_UI_HOST=otel-flagd-ui
+      - TELEMETRY_DOCS_HOST=otel-telemetry-docs
     labels:
       - traefik.enable=true
       - traefik.docker.network=dokploy-network

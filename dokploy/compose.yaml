@@ -595,17 +595,17 @@ services:
     dns_search: ""
     environment:
       - FRONTEND_PORT
-      - FRONTEND_HOST
-      - LOCUST_WEB_HOST
+      - FRONTEND_HOST=otel-frontend
+      - LOCUST_WEB_HOST=otel-load-generator
       - LOCUST_WEB_PORT
       - GRAFANA_PORT
-      - GRAFANA_HOST
+      - GRAFANA_HOST=otel-grafana
       - JAEGER_UI_PORT
-      - JAEGER_HOST
-      - OPAMP_SERVER_HOST
+      - JAEGER_HOST=otel-jaeger
+      - OPAMP_SERVER_HOST=otel-opamp-server
       - OPAMP_SERVER_UI_PORT
-      - OTEL_COLLECTOR_HOST
-      - IMAGE_PROVIDER_HOST
+      - OTEL_COLLECTOR_HOST=otel-otel-collector
+      - IMAGE_PROVIDER_HOST=otel-image-provider
       - IMAGE_PROVIDER_PORT
       - OTEL_COLLECTOR_PORT_GRPC
       - OTEL_COLLECTOR_PORT_HTTP
@@ -617,11 +617,11 @@ services:
       - ENVOY_ADMIN_PORT
       - FIREPIT_HOST
       - FIREPIT_PORT
-      - FLAGD_HOST
+      - FLAGD_HOST=otel-flagd
       - FLAGD_PORT
-      - FLAGD_UI_HOST
+      - FLAGD_UI_HOST=otel-flagd-ui
       - FLAGD_UI_PORT
-      - TELEMETRY_DOCS_HOST
+      - TELEMETRY_DOCS_HOST=otel-telemetry-docs
       - TELEMETRY_DOCS_PORT
       - CHATBOT_HOST
       - CHATBOT_PORT
